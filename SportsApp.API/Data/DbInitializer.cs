@@ -1,21 +1,34 @@
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using SportsApp.API.Models;
 using System;
 using System.Threading.Tasks;
 
 namespace SportsApp.API.Data
 {
-    public class DbInitializer
+    public static class DbInitializer
     {
-        public static async Task SeedRolesAndAdmin(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole<Guid>> roleManager)
+        public static async Task InitializeAsync(IServiceProvider serviceProvider)
         {
-            var adminRole = "Admin";
+            var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
+            var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+            var context = serviceProvider.GetRequiredService<SportsAppDbContext>();
 
-            if (!await roleManager.RoleExistsAsync(adminRole))
+            // Ensure the database is created and migrations are applied
+            await context.Database.MigrateAsync();
+
+            // Seed roles
+            string[] roles = new[] { "Admin", "Player", "Kinesiologist" };
+
+            foreach (var role in roles)
             {
-                await roleManager.CreateAsync(new IdentityRole<Guid>(adminRole));
+                if (!await roleManager.RoleExistsAsync(role))
+                {
+                    await roleManager.CreateAsync(new IdentityRole<Guid>(role));
+                }
             }
 
+            // Seed default admin user
             var adminEmail = "admin@sportsapp.com";
             var existingAdmin = await userManager.FindByEmailAsync(adminEmail);
 
@@ -27,19 +40,23 @@ namespace SportsApp.API.Data
                     Email = adminEmail,
                     FullName = "Admin User",
                     Level = 10,
-                    Bio = "Administrador"
+                    Bio = "Administrador",
+                    Role = "Admin"
                 };
 
                 var result = await userManager.CreateAsync(adminUser, "Admin1234!");
 
                 if (result.Succeeded)
                 {
-                    await userManager.AddToRoleAsync(adminUser, adminRole);
+                    await userManager.AddToRoleAsync(adminUser, "Admin");
                 }
             }
+
+            // Seed Facility Types
+            await SeedFacilityTypes(context);
         }
 
-        public static async Task SeedFacilityTypes(SportsAppDbContext context)
+        private static async Task SeedFacilityTypes(SportsAppDbContext context)
         {
             var predefinedTypes = new List<string> { "Court", "FootballField", "Kinesiologia" };
 

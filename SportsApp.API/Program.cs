@@ -55,18 +55,14 @@ builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 
 var app = builder.Build();
 
-// Seed admin + roles
+// Apply migrations automatically at startup
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
     var context = services.GetRequiredService<SportsAppDbContext>();
-    context.Database.Migrate(); // Aplica migraciones
+    context.Database.Migrate(); // Apply any pending migrations automatically
 
-    var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
-    var roleManager = services.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
-
-    await DbInitializer.SeedRolesAndAdmin(userManager, roleManager);
-    await DbInitializer.SeedFacilityTypes(context);
+    await DbInitializer.InitializeAsync(services);
 }
 
 

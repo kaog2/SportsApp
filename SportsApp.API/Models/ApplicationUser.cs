@@ -5,10 +5,25 @@ namespace SportsApp.API.Models
 {
     public class ApplicationUser : IdentityUser<Guid>
     {
-        public string FullName { get; set; }
+        // Full name of the user
+        public string? FullName { get; set; }
+
+        // Player level or experience
         public int Level { get; set; }
-        public string Bio { get; set; }
-        public List<UserTag> Tags { get; set; }
-        public List<Match> Matches { get; set; }
+
+        // Short biography
+        public string? Bio { get; set; }
+
+        // Tags related to the user (like skills, preferences)
+        public List<UserTag>? Tags { get; set; }
+
+        // Matches the user has participated in
+        public List<Match>? Matches { get; set; }
+
+        // Role of the user (Admin, Player, Kinesiologist)
+        public string? Role { get; set; }
+
+        // Specialty for Kinesiologist (optional)
+        public string? Specialty { get; set; }
     }
 }

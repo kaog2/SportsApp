@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SportsApp.API.Data;
 
@@ -11,9 +12,11 @@ using SportsApp.API.Data;
 namespace SportsApp.API.Migrations
 {
     [DbContext(typeof(SportsAppDbContext))]
-    partial class SportsAppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250426222918_AddReservationStatusAndNotes")]
+    partial class AddReservationStatusAndNotes
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
