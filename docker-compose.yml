@@ -1,0 +1,56 @@
+services:
+  # Define the database service
+  sportsappDatabase:
+    image: mysql:8.0
+    container_name: sportsappDatabase
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: SportsApp
+      MYSQL_USER: sportuser
+      MYSQL_PASSWORD: sportpassword
+    ports:
+      - "3306:3306"
+    networks:
+      - sport_network
+    healthcheck:
+        test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+        interval: 10s
+        retries: 5
+        start_period: 30s
+        timeout: 10s
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+  sportsapp:
+    container_name: sportsapp
+    image: ${DOCKER_REGISTRY-}sportsapp
+    build:
+      context: .
+      dockerfile: SportsApp.API/Dockerfile
+    ports:
+      - "8080:8080"
+    networks:
+      - sport_network
+    depends_on:
+      - sportsappDatabase
+
+  sport_web_proxy:
+    container_name: sport_web_proxy
+    build:
+      context: ./proxi
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    networks:
+      - sport_network
+      - nginx_proxi_default
+
+networks:
+  sport_network:
+    name: sport_network
+  nginx_proxi_default:
+
+volumes:
+  mysql-data:
+  app_images:
+  static_data:
+  media_data:
