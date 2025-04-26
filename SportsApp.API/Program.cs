@@ -52,6 +52,7 @@ builder.Services.AddAuthorization();
 
 // DI
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
 
 var app = builder.Build();
 

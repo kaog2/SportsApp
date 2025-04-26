@@ -17,6 +17,10 @@ namespace SportsApp.API.Models
 
         // Optional: Reason for cancellation or modification
         public string? Notes { get; set; }
+
+        public bool IsPaid { get; set; } = false;
+        public Guid? PaymentId { get; set; }
+        public Payment? Payment { get; set; }
     }
 }
 

@@ -16,6 +16,7 @@ namespace SportsApp.API.Data
         public DbSet<Reservation> Reservations { get; set; }
         public DbSet<UserTag> UserTags { get; set; }
         public DbSet<FacilityType> FacilityTypes { get; set; }
+        public DbSet<Payment> Payments { get; set; }
 
     }
 }
