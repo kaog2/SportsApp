@@ -1,8 +1,8 @@
 #!/bin/bash
 set -e
 
-echo "📦 Ejecutando migraciones..."
+echo "Running migrations..."
 dotnet ef database update --no-build --project ./SportsApp.API.csproj
 
-echo "🚀 Iniciando la aplicación..."
+echo "🚀 Starting API..."
 exec dotnet SportsApp.API.dll
