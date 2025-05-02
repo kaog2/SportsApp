@@ -21,14 +21,28 @@ services:
     volumes:
       - mysql-data:/var/lib/mysql
 
-  sportsapp:
-    container_name: sportsapp
-    image: ${DOCKER_REGISTRY-}sportsapp
+  frontend:
+    container_name: frontend
     build:
-      context: .
-      dockerfile: SportsApp.API/Dockerfile
+      context: ./SportsApp.Frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    networks:
+      - sport_network
+    depends_on:
+      - sportsapp_api
+  
+  sportsapp_api:
+    container_name: sportsapp_api
+    build:
+      context: ./SportsApp.API
+      dockerfile: Dockerfile
     ports:
       - "8080:8080"
+      #- "8081:8081"
+    restart: unless-stopped
+    command: ["dotnet", "ef", "database", "update"]
     networks:
       - sport_network
     depends_on:
@@ -40,6 +54,12 @@ services:
       context: ./proxi
       dockerfile: Dockerfile
     restart: unless-stopped
+    ports:
+      - "80:80"
+      #- "443:443"
+    depends_on:
+      - frontend
+      - sportsapp_api
     networks:
       - sport_network
       - nginx_proxi_default
