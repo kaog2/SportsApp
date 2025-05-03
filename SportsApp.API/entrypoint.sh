@@ -1,8 +1,11 @@
 #!/bin/bash
 set -e
 
-echo "Running migrations..."
-dotnet ef database update --no-build --project ./SportsApp.API.csproj
+echo "⏳ Waiting for database..."
+until dotnet ef database update --project SportsApp.API.csproj; do
+  echo "❗ Retry in 5s..."
+  sleep 5
+done
 
 echo "🚀 Starting API..."
 exec dotnet SportsApp.API.dll

@@ -46,7 +46,8 @@ services:
     networks:
       - sport_network
     depends_on:
-      - sportsappDatabase
+      sportsappDatabase:
+        condition: service_healthy
 
   sport_web_proxy:
     container_name: sport_web_proxy

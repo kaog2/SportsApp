@@ -1,31 +1,30 @@
+# Imagen base para runtime
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 WORKDIR /app
 
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build-stage
+# Imagen para build
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
-COPY . .
-RUN dotnet restore "SportsApp.API.csproj"
-RUN dotnet build "SportsApp.API.csproj" -c Release -o /app/build
 
-FROM build-stage AS publish-stage
-RUN dotnet publish "SportsApp.API.csproj" -c Release -o /app/publish /p:UseAppHost=false
+# Copiar el archivo .csproj desde el contexto actual
+COPY SportsApp.API.csproj ./
 
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS final
+# Restaurar dependencias
+RUN dotnet restore
+
+# Copiar el resto del código
+COPY . ./
+
+# Construir
+RUN dotnet build -c Release -o /app/build
+
+# Publicar
+FROM build AS publish
+RUN dotnet publish -c Release -o /app/publish
+
+# Imagen final
+FROM base AS final
 WORKDIR /app
+COPY --from=publish /app/publish .
 
-# Instalar herramientas EF Core
-RUN dotnet tool install --global dotnet-ef
-ENV PATH="${PATH}:/root/.dotnet/tools"
-
-# Copiar binarios publicados
-COPY --from=publish-stage /app/publish .
-
-# Copiar el código fuente para EF CLI
-COPY --from=build-stage /src .
-
-# Entrypoint
-COPY entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh \
-    && sed -i 's/\r$//' /entrypoint.sh
-
-ENTRYPOINT ["/entrypoint.sh"]
+ENTRYPOINT ["dotnet", "SportsApp.API.dll"]
