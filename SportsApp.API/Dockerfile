@@ -20,7 +20,11 @@ RUN dotnet build -c Release -o /app/build
 
 # Publicar
 FROM build AS publish
-RUN dotnet publish -c Release -o /app/publish
+#for Release
+#RUN dotnet publish -c Release -o /app/publish
+# Cambiar a Debug para pruebas locales
+RUN dotnet publish "SportsApp.API.csproj" -c Debug -o /app/publish
+
 
 # Imagen final
 FROM base AS final

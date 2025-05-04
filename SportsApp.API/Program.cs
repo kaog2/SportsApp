@@ -53,6 +53,7 @@ builder.Services.AddAuthorization();
 // DI
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddScoped<IPasswordRecoveryService, PasswordRecoveryService>();
 
 var app = builder.Build();
 

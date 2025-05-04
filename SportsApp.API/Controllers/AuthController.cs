@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using SportsApp.API.DTOs;
+using SportsApp.API.DTOs.Auth;
 using SportsApp.API.Models;
 using System;
 using System.IdentityModel.Tokens.Jwt;
@@ -20,14 +21,17 @@ namespace SportsApp.API.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly IJwtTokenService _jwtTokenService;
+        private readonly IPasswordRecoveryService _passwordRecoveryService;
 
         public AuthController(UserManager<ApplicationUser> userManager,
                                SignInManager<ApplicationUser> signInManager,
-                               IJwtTokenService jwtTokenService)
+                               IJwtTokenService jwtTokenService,
+                               IPasswordRecoveryService passwordRecoveryService)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _jwtTokenService = jwtTokenService;
+            _passwordRecoveryService = passwordRecoveryService;
         }
 
         [HttpPost("register")]
@@ -73,6 +77,35 @@ namespace SportsApp.API.Controllers
                 user.Level,
                 user.Bio
             });
+        }
+
+        // POST: api/Auth/forgot-password
+        [HttpPost("forgot-password")]
+        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDto dto)
+        {
+            var user = await _userManager.FindByEmailAsync(dto.Email);
+            if (user == null)
+                return Ok(); // no revelar si el usuario existe
+
+            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+            await _passwordRecoveryService.SendRecoveryEmailAsync(user, token);
+
+            return Ok();
+        }
+
+        // POST: api/Auth/reset-password
+        [HttpPost("reset-password")]
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto dto)
+        {
+            var user = await _userManager.FindByEmailAsync(dto.Email);
+            if (user == null) return BadRequest("Invalid request.");
+
+            var result = await _userManager.ResetPasswordAsync(user, dto.Token, dto.NewPassword);
+
+            if (!result.Succeeded)
+                return BadRequest(result.Errors);
+
+            return Ok("Password reset successfully.");
         }
     }
 }
