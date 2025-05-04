@@ -48,6 +48,16 @@ services:
     depends_on:
       sportsappDatabase:
         condition: service_healthy
+    environment:
+     - ASPNETCORE_ENVIRONMENT=Development
+     - SmtpSettings__Server=SmtpSettings__Server
+     - SmtpSettings__Port=SmtpSettings__Port
+     - SmtpSettings__SenderName=SmtpSettings__SenderName
+     - SmtpSettings__SenderEmail=SmtpSettings__SenderEmail
+     - SmtpSettings__Username=SmtpSettings__Username
+     - SmtpSettings__Password=SmtpSettings__Password
+     - SmtpSettings__Subject=SmtpSettings__Subject
+     - SmtpSettings__UseSSL=true
 
   sport_web_proxy:
     container_name: sport_web_proxy
